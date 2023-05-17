@@ -7,70 +7,77 @@
 
 import UIKit
 
-class LoginViewController: UIViewController {
+final class LoginViewController: UIViewController {
     
     @IBOutlet weak var userNameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var logInButton: UIButton!
     
-    let correctUserName = "User"
-    let correctPassword = "Password"
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-    }
-
-    func showAlert(with title: String, and message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Ok", style: .default)
-        alert.addAction(okAction)
-        present(alert, animated: true)
-    }
+    private let user = "User"
+    private let password = "Password"
     
-    @IBAction func loginButtonTapped(_ sender: UIButton) {
-        performSegue(withIdentifier: "LoginSegue", sender: self)
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let welcomeVC = segue.destination as? WelcomeViewController else {return}
+        welcomeVC.user = user
     }
     
     
-    @IBAction func forgotUserNameButtonTapped(_ sender: UIButton) {
-        showAlert(with: "Forgot User Name ?", and: "Your User Name is \(correctUserName)")
-    }
-    
-    @IBAction func forgotPasswordButtonTapped(_ sender: UIButton) {
-        showAlert(with: "Forgot Password ?", and: "Your password is \(correctPassword)")
-    }
-    
-    func performLogin() {
-        guard
-            userNameTextField.text == correctUserName,
-                passwordTextField.text == correctPassword
-        else {
-            showAlert(with: "Invalid login or password", and: "Please, enter correct login and password")
-            passwordTextField.text = ""
-            return
-        }
-        performSegue(withIdentifier: "LoginSegue", sender: self)
-    }
- 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         view.endEditing(true)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard
-            segue.identifier == "LoginSegue",
-            let destinationVC = segue.destination as? WelcomeViewController,
-            let userName = userNameTextField.text
-        else {return}
-        
-        destinationVC.userName = userName
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        guard userNameTextField.text == user, passwordTextField.text == password else {
+            showAlert(
+                with: "Invalid login or password",
+                and: "Please, enter correct login and passsword",
+                textField: passwordTextField
+            )
+            return false
+        }
+        return true
     }
+
+    @IBAction func loginButtonTapped(_ sender: UIButton) {
+/*        guard userNameTextField.text == user, passwordTextField.text == password else {
+            showAlert(
+                with: "Invalid login or password",
+                and: "Please, enter correct login and password",
+                textField: passwordTextField
+            )
+            return
+        }
+        performSegue(withIdentifier: "openWelcomeVC", sender: nil)
+*/
+ }
+
+    
+    @IBAction func forgotUserNameButtonTapped(_ sender: UIButton) {
+        showAlert(with: "Forgot User Name ?", and: "Your User Name is \(user)")
+    }
+    
+    
+    @IBAction func forgotPasswordButtonTapped(_ sender: UIButton) {
+        showAlert(with: "Forgot Password ?", and: "Your password is \(password)")
+    }
+ 
     
     @IBAction func unwindToLoginViewController(_ unwindSegue: UIStoryboardSegue) {
         userNameTextField.text = ""
         passwordTextField.text = ""
     }
+    
+    
+    private func showAlert(with title: String, and message: String, textField: UITextField? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ok", style: .default) { _ in textField?.text = ""
+        }
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
+    
 }
 
